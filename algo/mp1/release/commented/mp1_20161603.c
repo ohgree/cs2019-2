@@ -29,7 +29,7 @@ int mss_pow6(int** matrix, int m, int n) {
    from->row = from->col = 0;
    to->row = to->col = 0;
 
-   // 6 loops. wow.
+   // 6 loops. wow. seriously?
    for(from->row = 0 ; from->row < m ; from->row++) {
       for(from->col = 0 ; from->col < n ; from->col++) {
          for(to->row = from->row ; to->row < m ; to->row++) {
@@ -128,6 +128,7 @@ int main(int argc, const char* argv[]) {
    FILE* fp;
    int algorithm_index;
    int mss, m, n, **mat;
+   char* out_filename;
 
    // Argument error handling
    if(argc != 3) {
@@ -178,8 +179,20 @@ int main(int argc, const char* argv[]) {
       free(mat[i]);
    free(mat);
 
+
+   out_filename = malloc(sizeof(char)*(8+strlen(argv[1])));
+   strcat(out_filename, "result_");
+   strcat(out_filename, argv[1]);
+
+   if(!(fp = fopen(out_filename, "w"))) {
+      fprintf(stderr, "Cannot open  output file\n");
+      exit(1);
+   }
+
    //print out the value, along with time consumed.
-   printf("%s\n", argv[1]);
-   printf("%d\n%d\n%d\n%d\n%.6f\n", algorithm_index, m, n, mss,
+   fprintf(fp, "%s\n", argv[1]);
+   fprintf(fp, "%d\n%d\n%d\n%d\n%.6f\n", algorithm_index, m, n, mss,
          ((double)(termination_time-start_time)/CLOCKS_PER_SEC)*1000);
+   fclose(fp);
+   free(out_filename);
 }
