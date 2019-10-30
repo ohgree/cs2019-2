@@ -12,7 +12,6 @@ int main(int argc, const char* argv[]) {
    }
    int num = atoi(argv[2]);
    int bound = atoi(argv[3]);
-   double x, y;
    srand(atoi(argv[4]));
    fprintf(fp, "%d ", num);
    for(int i=0 ; i<num ; i++) {
