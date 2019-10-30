@@ -21,7 +21,8 @@ void bubble_sort(double* list, int length) {
    }
 }
 void insertion_sort(double* list, int n) {
-   int key, j;
+   int j;
+   double key;
    for(int i=1 ; i<n ; i++) {
       key = list[i];
       for(j=i-1 ; j>=0 && list[j] > key; j--) {
@@ -129,7 +130,7 @@ int main(int argc, const char* argv[]) {
    }
    if(!(fp = fopen(argv[1], "r"))) {
       fprintf(stderr, "Cannot open file %s\n", argv[1]);
-      exit(1);
+      exit(-1);
    }
    fscanf(fp, "%d", &n);
    data = malloc(sizeof(double)*(n+1));
@@ -150,13 +151,25 @@ int main(int argc, const char* argv[]) {
    }
    clock_t term_time = clock();
 
-
-   printf("[DEBUG]\n");
-   printf("%s\n%s\n%d\n%.6f\n", argv[1], argv[2], n,
-         ((double)(term_time-start_time)/CLOCKS_PER_SEC));
-   for(int i=0 ; i<n; i++) {
-      printf("%lg ", data[i]);
+   int fnameLen = 10;
+   char* fname;
+   fnameLen += strlen(argv[1]);
+   fname = malloc(sizeof(char)*fnameLen + 1);
+   strcpy(fname, "result_");
+   strcat(fname, argv[2]);
+   strcat(fname, "_");
+   strcat(fname, argv[1]);
+   if(!(fp = fopen(fname, "w"))) {
+      fprintf(stderr, "Writing to file %s failed\n", fname);
+      exit(-1);
    }
+   fprintf(fp, "%s\n%s\n%d\n%.6f\n", argv[1], argv[2], n,
+         ((double)(term_time-start_time)/CLOCKS_PER_SEC));
+   for(int i=0 ; i<n-1; i++) {
+      fprintf(fp, "%lf ", data[i]);
+   }
+   fprintf(fp, "%lf", data[n-1]);
+   fclose(fp);
 
    return 0;
 }
