@@ -11,6 +11,7 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
+// unused function
 void bubble_sort(double* list, int length) {
    for(int i=0 ; i<length ; i++) {
       for(int j=0 ; j<length-i-1 ; j++) {
@@ -113,8 +114,6 @@ void intro_sort(double* data, int from, int to, int depth) {
          insertion_sort(data+from2, to2-from2+1);
          return;
       }
-      /*if(from2 >= to2)*/
-         /*return;*/
       if(!depth) {
          //using heapsort when depth reached its limit
          heap_sort(&data[from2], to2-from2+1);
@@ -154,8 +153,7 @@ int main(int argc, const char* argv[]) {
 
    clock_t start_time = clock();
    switch(atoi(argv[2])) {
-      case 1: //bubble_sort(data, n); break;
-         insertion_sort(data, n); break;
+      case 1: insertion_sort(data, n); break;
       case 2: quick_sort(data, 0, n-1); break;
       case 3: heap_sort(data, n); break;
       case 4: intro_sort(data, 0, n-1, 2*(int)log2(n)); break;
