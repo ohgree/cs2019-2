@@ -102,24 +102,34 @@ double* median3(double* a, double* b, double* c) {
 }
 void intro_sort(double* data, int from, int to, int depth) {
    int pivot;
-   if(to-from+1 <= 16) {
-      //TODO: use insertion sort when (to-from+1) <= 16 elements
-      insertion_sort(data+from, to-from+1);
-      return;
+   int from1, from2, to1, to2;
+   from2 = from;
+   to2 = to;
+   //TODO: improve performance using tail recursion optimisation
+   while(to2 - from2 > 1) {
+      if(to2-from2+1 <= 16) {
+         //use insertion sort when size <= 16 elements
+         insertion_sort(data+from2, to2-from2+1);
+         return;
+      }
+      if(from >= to)
+         return;
+      if(!depth) {
+         //using heapsort when depth reached its limit
+         heap_sort(&data[from2], to2-from2+1);
+         return;
+      }
+      depth--;
+      double* m = median3(&data[from2], &data[(from2+to2)/2], &data[to2]);
+      SWAP(*m, data[to2], double);
+      pivot = partition(data, from2, to2);
+
+      if(pivot < (from2+to2)/2) {
+
+      }
+      intro_sort(data, from, pivot-1, depth);
+      intro_sort(data, pivot+1, to, depth);
    }
-   if(from >= to)
-      return;
-   if(!depth) {
-      //using heapsort when depth reached its limit
-      heap_sort(&data[from], to-from+1);
-      return;
-   }
-   depth--;
-   double* m = median3(&data[from], &data[(from+to)/2], &data[to]);
-   SWAP(*m, data[to], double);
-   pivot = partition(data, from, to);
-   intro_sort(data, from, pivot-1, depth);
-   intro_sort(data, pivot+1, to, depth);
 }
 int main(int argc, const char* argv[]) {
    int n;
