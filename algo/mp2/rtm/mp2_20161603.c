@@ -102,8 +102,9 @@ double* median3(double* a, double* b, double* c) {
 }
 void intro_sort(double* data, int from, int to, int depth) {
    int pivot;
+   //TODO: implement TRO
    if(to-from+1 <= 16) {
-      //TODO: use insertion sort when (to-from+1) <= 16 elements
+      //use insertion sort when (to-from+1) <= 16 elements
       insertion_sort(data+from, to-from+1);
       return;
    }
