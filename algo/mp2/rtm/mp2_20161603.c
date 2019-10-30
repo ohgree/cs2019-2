@@ -102,7 +102,7 @@ double* median3(double* a, double* b, double* c) {
 }
 void intro_sort(double* data, int from, int to, int depth) {
    int pivot;
-   int from1, from2, to1, to2;
+   int from2, to2;
    from2 = from;
    to2 = to;
    //TODO: improve performance using tail recursion optimisation
@@ -112,7 +112,7 @@ void intro_sort(double* data, int from, int to, int depth) {
          insertion_sort(data+from2, to2-from2+1);
          return;
       }
-      if(from >= to)
+      if(from2 >= to2)
          return;
       if(!depth) {
          //using heapsort when depth reached its limit
@@ -125,10 +125,12 @@ void intro_sort(double* data, int from, int to, int depth) {
       pivot = partition(data, from2, to2);
 
       if(pivot < (from2+to2)/2) {
-
+         intro_sort(data, from2, pivot-1, depth);
+         from2 = pivot+1;
+      } else {
+         intro_sort(data, pivot+1, to2, depth);
+         to2 = pivot-1;
       }
-      intro_sort(data, from, pivot-1, depth);
-      intro_sort(data, pivot+1, to, depth);
    }
 }
 int main(int argc, const char* argv[]) {
