@@ -105,6 +105,7 @@ void intro_sort(double* data, int from, int to, int depth) {
    if(to-from+1 <= 16) {
       //TODO: use insertion sort when (to-from+1) <= 16 elements
       insertion_sort(data+from, to-from+1);
+      return;
    }
    if(from >= to)
       return;
