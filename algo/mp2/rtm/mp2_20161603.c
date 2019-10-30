@@ -103,24 +103,25 @@ double* median3(double* a, double* b, double* c) {
 void intro_sort(double* data, int from, int to, int depth) {
    int pivot;
    int from2, to2;
+   double* m;
    from2 = from;
    to2 = to;
-   //TODO: improve performance using tail recursion optimisation
-   while(to2 - from2 > 1) {
+   //improve performance using tail recursion optimisation
+   while(to2 > from2) {
       if(to2-from2+1 <= 16) {
          //use insertion sort when size <= 16 elements
          insertion_sort(data+from2, to2-from2+1);
          return;
       }
-      if(from2 >= to2)
-         return;
+      /*if(from2 >= to2)*/
+         /*return;*/
       if(!depth) {
          //using heapsort when depth reached its limit
          heap_sort(&data[from2], to2-from2+1);
          return;
       }
       depth--;
-      double* m = median3(&data[from2], &data[(from2+to2)/2], &data[to2]);
+      m = median3(&data[from2], &data[(from2+to2)/2], &data[to2]);
       SWAP(*m, data[to2], double);
       pivot = partition(data, from2, to2);
 
