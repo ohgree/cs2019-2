@@ -8,29 +8,31 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
-void bubble_sort(int* list, int length) {
+#include <math.h>
+void bubble_sort(double* list, int length) {
    for(int i=0 ; i<length ; i++) {
       for(int j=0 ; j<length-i-1 ; j++) {
          if(list[j] > list[j+1]) {
-            SWAP(list[j], list[j+1], int);
+            SWAP(list[j], list[j+1], double);
          }
       }
    }
 }
-int partition(int* list, int left, int right) {
+int partition(double* list, int left, int right) {
    int pivot;
    pivot = left;
    for(int i=left ; i<right ; i++) {
       if(list[right] > list[i]) {
-         SWAP(list[i], list[pivot], int);
+         SWAP(list[i], list[pivot], double);
          pivot++;
       }
    }
-   SWAP(list[right], list[pivot], int);
+   SWAP(list[right], list[pivot], double);
    return pivot;
 }
-void quick_sort(int* list, int left, int right) {
+void quick_sort(double* list, int left, int right) {
    int pivot;
    if(left >= right)
       return;
@@ -38,8 +40,9 @@ void quick_sort(int* list, int left, int right) {
    quick_sort(list, left, pivot-1);
    quick_sort(list, pivot+1, right);
 }
-void adjust(int* list, int root, int n) {
-   int child, rkey;
+void adjust(double* list, int root, int n) {
+   int child;
+   double rkey;
    rkey = list[root];
    child = root*2;
    while(child <= n) {
@@ -54,22 +57,53 @@ void adjust(int* list, int root, int n) {
    }
    list[child/2] = rkey;
 }
-void heap_sort(int* list, int n) {
+void heap_sort(double* list, int n) {
+   double last = list[n];
    for(int i=n ; i>0 ; i--)
       list[i] = list[i-1];
    for(int i=n/2 ; i>0 ; i--) 
       adjust(list, i, n);
    for(int i=n-1 ; i>0 ; i--) {
-      SWAP(list[1], list[i+1], int);
+      SWAP(list[1], list[i+1], double);
       adjust(list, 1, i);
    }
    for(int i=0 ; i<n ; i++)
       list[i] = list[i+1];
+   list[n] = last;
 }
-void radix_sort(int* data, int n);
+double* median3(double* a, double* b, double* c) {
+   if(*a <= *b && *b <= *c)
+      return b;
+   if(*a <= *c && *c <= *b)
+      return c;
+   if(*b <= *a && *a <= *c)
+      return a;
+   if(*b <= *c && *c <= *a)
+      return c;
+   if(*c <= *a && *a <= *b)
+      return a;
+   if(*c <= *b && *b <= *a)
+      return b;
+   return NULL;
+}
+void intro_sort(double* data, int from, int to, int depth) {
+   int pivot;
+   if(from >= to)
+      return;
+   if(!depth) {
+      heap_sort(&data[from], to-from+1);
+      return;
+   }
+   depth--;
+   double* m = median3(&data[from], &data[(from+to)/2], &data[to]);
+   SWAP(*m, data[to], double);
+   pivot = partition(data, from, to);
+   intro_sort(data, from, pivot-1, depth);
+   intro_sort(data, pivot+1, to, depth);
+}
 int main(int argc, const char* argv[]) {
    int n;
-   int* data;
+   double* data, *data2, *data3;
    FILE* fp;
    if(argc != 3) {
       fprintf(stderr, "Usage: %s filename index\n", argv[0]);
@@ -80,28 +114,38 @@ int main(int argc, const char* argv[]) {
       exit(1);
    }
    fscanf(fp, "%d", &n);
-   data = malloc(sizeof(int)*(n+1));
+   data = malloc(sizeof(double)*(n+1));
+   data2 = malloc(sizeof(double)*(n+1));//XXX
    for(int i=0 ; i<n ; i++)
-      fscanf(fp, "%d", &data[i]);
+      fscanf(fp, "%lf", &data[i]);
    fclose(fp);
+   memcpy(data2, data, n*sizeof(double));
 
    clock_t start_time = clock();
    switch(atoi(argv[2])) {
       case 1: bubble_sort(data, n); break;
       case 2: quick_sort(data, 0, n-1); break;
       case 3: heap_sort(data, n); break;
-      case 4: radix_sort(data, n); break;
+      case 4: intro_sort(data, 0, n-1, 2*(int)log2(n)); break;
       default:
               fprintf(stderr, "Algorithm index must be between 1-4\n");
               exit(1);
    }
    clock_t term_time = clock();
 
+
+   bubble_sort(data2, n);
    printf("[DEBUG]\n");
    printf("%s\n%s\n%d\n%.6f\n", argv[1], argv[2], n,
          ((double)(term_time-start_time)/CLOCKS_PER_SEC));
+   for(int i=0 ; i<n; i++) {
+      printf("[%lf %lf]", data[i], data2[i]);
+   }
    for(int i=0 ; i<n ; i++) {
-      printf("%d ", data[i]);
+      if(data[i] != data2[i])  {
+         printf("%lf %lf FFS\n", data[i], data2[i]); 
+         break;
+      }
    }
 
    return 0;
