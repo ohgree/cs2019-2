@@ -12,18 +12,18 @@
 #include <time.h>
 #include <math.h>
 // unused function
-void bubble_sort(double* list, int length) {
+void bubble_sort(int* list, int length) {
    for(int i=0 ; i<length ; i++) {
       for(int j=0 ; j<length-i-1 ; j++) {
          if(list[j] > list[j+1]) {
-            SWAP(list[j], list[j+1], double);
+            SWAP(list[j], list[j+1], int);
          }
       }
    }
 }
-void insertion_sort(double* list, int n) {
+void insertion_sort(int* list, int n) {
    int j;
-   double key;
+   int key;
    for(int i=1 ; i<n ; i++) {
       key = list[i];
       for(j=i-1 ; j>=0 && list[j] > key; j--) {
@@ -32,19 +32,19 @@ void insertion_sort(double* list, int n) {
       list[j+1] = key;
    }
 }
-int partition(double* list, int left, int right) {
+int partition(int* list, int left, int right) {
    int pivot;
    pivot = left;
    for(int i=left ; i<right ; i++) {
       if(list[right] > list[i]) {
-         SWAP(list[i], list[pivot], double);
+         SWAP(list[i], list[pivot], int);
          pivot++;
       }
    }
-   SWAP(list[right], list[pivot], double);
+   SWAP(list[right], list[pivot], int);
    return pivot;
 }
-void quick_sort(double* list, int left, int right) {
+void quick_sort(int* list, int left, int right) {
    int pivot;
    if(left >= right)
       return;
@@ -52,9 +52,9 @@ void quick_sort(double* list, int left, int right) {
    quick_sort(list, left, pivot-1);
    quick_sort(list, pivot+1, right);
 }
-void adjust(double* list, int root, int n) {
+void adjust(int* list, int root, int n) {
    int child;
-   double rkey;
+   int rkey;
    rkey = list[root];
    child = root*2;
    while(child <= n) {
@@ -69,16 +69,16 @@ void adjust(double* list, int root, int n) {
    }
    list[child/2] = rkey;
 }
-void heap_sort(double* list, int n) {
+void heap_sort(int* list, int n) {
    //save last element
-   double last = list[n];
+   int last = list[n];
    //shift list right by one, to use heap
    for(int i=n ; i>0 ; i--)
       list[i] = list[i-1];
    for(int i=n/2 ; i>0 ; i--) 
       adjust(list, i, n);
    for(int i=n-1 ; i>0 ; i--) {
-      SWAP(list[1], list[i+1], double);
+      SWAP(list[1], list[i+1], int);
       adjust(list, 1, i);
    }
    for(int i=0 ; i<n ; i++)
@@ -86,7 +86,7 @@ void heap_sort(double* list, int n) {
    //restore last element
    list[n] = last;
 }
-double* median3(double* a, double* b, double* c) {
+int* median3(int* a, int* b, int* c) {
    if(*a <= *b && *b <= *c)
       return b;
    if(*a <= *c && *c <= *b)
@@ -101,10 +101,10 @@ double* median3(double* a, double* b, double* c) {
       return b;
    return NULL;
 }
-void intro_sort(double* data, int from, int to, int depth) {
+void intro_sort(int* data, int from, int to, int depth) {
    int pivot;
    int from2, to2;
-   double* m;
+   int* m;
    from2 = from;
    to2 = to;
    //improve performance using tail recursion optimisation
@@ -121,7 +121,7 @@ void intro_sort(double* data, int from, int to, int depth) {
       }
       depth--;
       m = median3(&data[from2], &data[(from2+to2)/2], &data[to2]);
-      SWAP(*m, data[to2], double);
+      SWAP(*m, data[to2], int);
       pivot = partition(data, from2, to2);
 
       if(pivot < (from2+to2)/2) {
@@ -135,7 +135,7 @@ void intro_sort(double* data, int from, int to, int depth) {
 }
 int main(int argc, const char* argv[]) {
    int n;
-   double* data;
+   int* data;
    FILE* fp;
    if(argc != 3) {
       fprintf(stderr, "Usage: %s filename index\n", argv[0]);
@@ -146,9 +146,9 @@ int main(int argc, const char* argv[]) {
       exit(-1);
    }
    fscanf(fp, "%d", &n);
-   data = malloc(sizeof(double)*(n+1));
+   data = malloc(sizeof(int)*(n+1));
    for(int i=0 ; i<n ; i++)
-      fscanf(fp, "%lf", &data[i]);
+      fscanf(fp, "%d", &data[i]);
    fclose(fp);
 
    clock_t start_time = clock();
@@ -178,9 +178,9 @@ int main(int argc, const char* argv[]) {
    fprintf(fp, "%s\n%s\n%d\n%.6f\n", argv[1], argv[2], n,
          ((double)(term_time-start_time)/CLOCKS_PER_SEC));
    for(int i=0 ; i<n-1; i++) {
-      fprintf(fp, "%lf ", data[i]);
+      fprintf(fp, "%d ", data[i]);
    }
-   fprintf(fp, "%lf", data[n-1]);
+   fprintf(fp, "%d", data[n-1]);
    fclose(fp);
 
    return 0;
