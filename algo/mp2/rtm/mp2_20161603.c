@@ -11,16 +11,11 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
-// unused function
-void bubble_sort(int* list, int length) {
-   for(int i=0 ; i<length ; i++) {
-      for(int j=0 ; j<length-i-1 ; j++) {
-         if(list[j] > list[j+1]) {
-            SWAP(list[j], list[j+1], int);
-         }
-      }
-   }
-}
+/**
+ * Performs insertion sort on given list.
+ * @param list Integer array pointer to sort.
+ * @param n    Number of elements in the array list.
+ */
 void insertion_sort(int* list, int n) {
    int j;
    int key;
@@ -32,6 +27,14 @@ void insertion_sort(int* list, int n) {
       list[j+1] = key;
    }
 }
+/**
+ * Partition function for quicksort.
+ * The pivot is the rightmost element in the given list.
+ * @param  list  List to partition.
+ * @param  left  Left index of the list. Inclusive
+ * @param  right Right index of the list. Inclusive
+ * @return       Pivot index in the list.
+ */
 int partition(int* list, int left, int right) {
    int pivot;
    pivot = left;
@@ -44,14 +47,28 @@ int partition(int* list, int left, int right) {
    SWAP(list[right], list[pivot], int);
    return pivot;
 }
+/**
+ * Standard quicksort algorithm
+ * @param list  Integer array list to perform quicksort
+ * @param left  Left index of the array. Inclusive.
+ * @param right Right index of the array. Inclusive.
+ */
 void quick_sort(int* list, int left, int right) {
    int pivot;
    if(left >= right)
       return;
-   pivot = partition(list, left, right); 
+   pivot = partition(list, left, right);
    quick_sort(list, left, pivot-1);
    quick_sort(list, pivot+1, right);
 }
+/**
+ * Adjust function for heapsort.
+ * Two subtrees of given root is max heap. And this function
+ * correctly places the value in root node into the heap.
+ * @param list Whole heap array
+ * @param root Root node number
+ * @param n    Total number of nodes in the entire heap array list.
+ */
 void adjust(int* list, int root, int n) {
    int child;
    int rkey;
@@ -69,23 +86,44 @@ void adjust(int* list, int root, int n) {
    }
    list[child/2] = rkey;
 }
+/**
+ * Performs heapsort by creating a new heap, and removes elements from it
+ * one by one.
+ * @param list Integer array list to sort.
+ * @param n    Total number of elements in the array list.
+ */
 void heap_sort(int* list, int n) {
    //save last element
    int last = list[n];
+
    //shift list right by one, to use heap
    for(int i=n ; i>0 ; i--)
       list[i] = list[i-1];
-   for(int i=n/2 ; i>0 ; i--) 
+
+   //creating a max heap
+   for(int i=n/2 ; i>0 ; i--)
       adjust(list, i, n);
+
+   //removing root values from heap
    for(int i=n-1 ; i>0 ; i--) {
       SWAP(list[1], list[i+1], int);
       adjust(list, 1, i);
    }
+
+   //shift list left by one
    for(int i=0 ; i<n ; i++)
       list[i] = list[i+1];
+
    //restore last element
    list[n] = last;
 }
+/**
+ * Return median of three integers given.
+ * @param  a Pointer to an integer.
+ * @param  b Pointer to an integer.
+ * @param  c Pointer to an integer.
+ * @return   Address pointing to the median value.
+ */
 int* median3(int* a, int* b, int* c) {
    if(*a <= *b && *b <= *c)
       return b;
@@ -101,29 +139,42 @@ int* median3(int* a, int* b, int* c) {
       return b;
    return NULL;
 }
+/**
+ * Algorithm 4 Implementation.
+ * Basically a quicksort algorithm with tail recursion optimising.
+ * Uses insertion sort if current list size is less than certain number.
+ * Performs heapsort if total depth of quicksort tree is below a certain
+ * level, to improve execution time.
+ * @param data  Integer list to sort.
+ * @param from  Left index of specified list. Inclusive.
+ * @param to    Right index of specified list. Inclusive.
+ * @param depth Maximum depth for this function to recursively call itself.
+ */
 void intro_sort(int* data, int from, int to, int depth) {
    int pivot;
    int from2, to2;
    int* m;
    from2 = from;
    to2 = to;
-   //improve performance using tail recursion optimisation
+   // improving performance using tail recursion optimisation
    while(to2 > from2) {
       if(to2-from2+1 <= 16) {
-         //use insertion sort when size <= 16 elements
+         // use insertion sort when size <= 16 elements
          insertion_sort(data+from2, to2-from2+1);
          return;
       }
       if(!depth) {
-         //using heapsort when depth reached its limit
+         // using heapsort when depth reached its limit
          heap_sort(&data[from2], to2-from2+1);
          return;
       }
       depth--;
+      // use median-of-three method to get the value to use as pivot.
       m = median3(&data[from2], &data[(from2+to2)/2], &data[to2]);
       SWAP(*m, data[to2], int);
       pivot = partition(data, from2, to2);
 
+      // only the smallest of the two divided list is recursively called.
       if(pivot < (from2+to2)/2) {
          intro_sort(data, from2, pivot-1, depth);
          from2 = pivot+1;
@@ -137,6 +188,7 @@ int main(int argc, const char* argv[]) {
    int n;
    int* data;
    FILE* fp;
+   // error check
    if(argc != 3) {
       fprintf(stderr, "Usage: %s filename index\n", argv[0]);
       exit(1);
@@ -145,12 +197,14 @@ int main(int argc, const char* argv[]) {
       fprintf(stderr, "Cannot open file %s\n", argv[1]);
       exit(-1);
    }
+   // read file
    fscanf(fp, "%d", &n);
    data = malloc(sizeof(int)*(n+1));
    for(int i=0 ; i<n ; i++)
       fscanf(fp, "%d", &data[i]);
    fclose(fp);
 
+   // timer start
    clock_t start_time = clock();
    switch(atoi(argv[2])) {
       case 1: insertion_sort(data, n); break;
@@ -161,9 +215,9 @@ int main(int argc, const char* argv[]) {
               fprintf(stderr, "Algorithm index must be between 1-4\n");
               exit(1);
    }
+   // timer finish
    clock_t term_time = clock();
 
-   //TODO: use strstr() to correctly implement filename
    int fnameLen = 10;
    char* fname;
    fnameLen += strlen(argv[1]);
@@ -173,6 +227,7 @@ int main(int argc, const char* argv[]) {
    strcat(fname, "_");
    strcat(fname, argv[1]);
 
+   // writing to file
    if(!(fp = fopen(fname, "w"))) {
       fprintf(stderr, "Writing to file %s failed\n", fname);
       exit(-1);
