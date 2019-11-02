@@ -163,6 +163,7 @@ int main(int argc, const char* argv[]) {
    }
    clock_t term_time = clock();
 
+   //TODO: use strstr() to correctly implement filename
    int fnameLen = 10;
    char* fname;
    fnameLen += strlen(argv[1]);
@@ -171,6 +172,7 @@ int main(int argc, const char* argv[]) {
    strcat(fname, argv[2]);
    strcat(fname, "_");
    strcat(fname, argv[1]);
+
    if(!(fp = fopen(fname, "w"))) {
       fprintf(stderr, "Writing to file %s failed\n", fname);
       exit(-1);
