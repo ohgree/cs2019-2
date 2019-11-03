@@ -5,6 +5,7 @@
    a = b;        \
    b = temp;     \
 }
+#define logB(x, base) log(x)/log(base)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -210,7 +211,7 @@ int main(int argc, const char* argv[]) {
       case 1: insertion_sort(data, n); break;
       case 2: quick_sort(data, 0, n-1); break;
       case 3: heap_sort(data, n); break;
-      case 4: intro_sort(data, 0, n-1, 2*(int)log2(n)); break;
+      case 4: intro_sort(data, 0, n-1, 2*(int)logB(n, 2)); break;
       default:
               fprintf(stderr, "Algorithm index must be between 1-4\n");
               exit(1);
@@ -218,20 +219,32 @@ int main(int argc, const char* argv[]) {
    // timer finish
    clock_t term_time = clock();
 
+   //use strchr() to correctly get filename from path
+   char* path = (char*)argv[1];
+
    int fnameLen = 10;
+
    char* fname;
-   fnameLen += strlen(argv[1]);
-   fname = malloc(sizeof(char)*fnameLen + 1);
-   strcpy(fname, "result_");
-   strcat(fname, argv[2]);
-   strcat(fname, "_");
-   strcat(fname, argv[1]);
+   fname = path;
+   while((path = strchr(path, '/'))) {
+      fname = ++path;
+   }
+   fnameLen += strlen(fname);
+   
+   char* outfile = malloc(sizeof(char)*fnameLen+1);
+   strcpy(outfile, "result_");
+   strcat(outfile, argv[2]);
+   strcat(outfile,  "_");
+   strcat(outfile, fname);
 
    // writing to file
-   if(!(fp = fopen(fname, "w"))) {
+   if(!(fp = fopen(outfile, "w"))) {
       fprintf(stderr, "Writing to file %s failed\n", fname);
       exit(-1);
    }
+
+   free(outfile);
+
    fprintf(fp, "%s\n%s\n%d\n%.6f\n", argv[1], argv[2], n,
          ((double)(term_time-start_time)/CLOCKS_PER_SEC));
    for(int i=0 ; i<n-1; i++) {
@@ -239,6 +252,7 @@ int main(int argc, const char* argv[]) {
    }
    fprintf(fp, "%d", data[n-1]);
    fclose(fp);
+   free(data);
 
    return 0;
 }
