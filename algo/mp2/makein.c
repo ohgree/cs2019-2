@@ -54,7 +54,7 @@ int main(int argc, const char* argv[]) {
    for(int i=0 ; i<num-1 ; i++) {
       fprintf(fp, "%d ", data[i]);
    }
-   fprintf(fp, "%d", data[num]);
+   fprintf(fp, "%d", data[num-1]);
    fclose(fp);
 
    return 0;

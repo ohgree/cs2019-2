@@ -218,37 +218,20 @@ int main(int argc, const char* argv[]) {
    // timer finish
    clock_t term_time = clock();
 
-   //TODO: use strchr() to correctly implement filename
-   char* inputfile;
-   inputfile = malloc(sizeof(char)*strlen(argv[1])+1);
-   strcpy(inputfile, argv[1]);
-
    int fnameLen = 10;
-   fnameLen += strlen(inputfile);
    char* fname;
-   fname = malloc(sizeof(char)*strlen(argv[1]) + 1);
-
-   char* path = inputfile;
-   char* lastslash = path;
-   while((path = strchr(path, '/'))) {
-      lastslash = path;
-   }
-   path = NULL;
-   strncpy(fname, inputfile, lastslash-inputfile+1);
-   strcat(fname, "result_");
+   fnameLen += strlen(argv[1]);
+   fname = malloc(sizeof(char)*fnameLen + 1);
+   strcpy(fname, "result_");
    strcat(fname, argv[2]);
    strcat(fname, "_");
-   strcat(fname, lastslash+1);
+   strcat(fname, argv[1]);
 
    // writing to file
    if(!(fp = fopen(fname, "w"))) {
       fprintf(stderr, "Writing to file %s failed\n", fname);
       exit(-1);
    }
-
-   free(inputfile);
-   free(fname);
-
    fprintf(fp, "%s\n%s\n%d\n%.6f\n", argv[1], argv[2], n,
          ((double)(term_time-start_time)/CLOCKS_PER_SEC));
    for(int i=0 ; i<n-1; i++) {
@@ -256,7 +239,6 @@ int main(int argc, const char* argv[]) {
    }
    fprintf(fp, "%d", data[n-1]);
    fclose(fp);
-   free(data);
 
    return 0;
 }
