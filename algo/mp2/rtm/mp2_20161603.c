@@ -237,8 +237,6 @@ int main(int argc, const char* argv[]) {
    strcat(outfile,  "_");
    strcat(outfile, fname);
 
-   printf("%s", outfile);
-
    // writing to file
    if(!(fp = fopen(outfile, "w"))) {
       fprintf(stderr, "Writing to file %s failed\n", fname);
