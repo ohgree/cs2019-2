@@ -5,6 +5,7 @@
    a = b;        \
    b = temp;     \
 }
+#define logB(x, base) log(x)/log(base)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -210,7 +211,7 @@ int main(int argc, const char* argv[]) {
       case 1: insertion_sort(data, n); break;
       case 2: quick_sort(data, 0, n-1); break;
       case 3: heap_sort(data, n); break;
-      case 4: intro_sort(data, 0, n-1, 2*(int)log2(n)); break;
+      case 4: intro_sort(data, 0, n-1, 2*(int)logB(n, 2)); break;
       default:
               fprintf(stderr, "Algorithm index must be between 1-4\n");
               exit(1);
