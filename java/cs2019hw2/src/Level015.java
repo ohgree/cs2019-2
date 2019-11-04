@@ -1,12 +1,27 @@
-package io.github.ohgree.cs2019hw2.level015;
+/**
+ * CSE3040 HW2
+ * Level015.java
+ * Purpose: Compare two instances of class Points.
+ *
+ * @version 1.0 Nov. 4. 2019.
+ * @author MJ Shin
+ */
 
 class Points {
     private double[] point;
 
+    /**
+     * Constructor
+     * @param point Array of doubles, representing points
+     */
     public Points(double[] point) {
         this.point = point;
     }
 
+    /**
+     * Get sum of all points in this instance
+     * @return Sum of all points
+     */
     public double getSum() {
         double sum = 0;
         for(double d: this.point)
@@ -14,13 +29,23 @@ class Points {
         return sum;
     }
 
+    /**
+     * Overriding toString() method
+     * @return Correctly formatted string representing this instance.
+     */
     @Override
     public String toString() {
         return "[sum of points: " + this.getSum() + "]";
     }
 
+    /**
+     * Check if this instance is equal to given object.
+     * @param obj Object to compare
+     * @return true if equal, false if not.
+     */
     @Override
     public boolean equals(Object obj) {
+        // Check for type
         if (!(obj instanceof Points))
             return false;
 
@@ -29,6 +54,9 @@ class Points {
     }
 }
 
+/**
+ * Main class
+ */
 public class Level015 {
     public static void main(String[] args) {
         Points p1 = new Points(new double[]{1.0, 2.0, 3.0});
