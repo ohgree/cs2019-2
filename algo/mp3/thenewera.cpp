@@ -142,13 +142,13 @@ void Huffman::writeToFile() {
       codedBits += getHuffmanCodeOf(k);
       while(codedBits.length() > 8) {
          out += binToByte(codedBits.substr(0, 8));
-         cout << codedBits.substr(0, 8);
+         //cout << codedBits.substr(0, 8);
          codedBits = codedBits.substr(8);
       }
    }
-   cout << codedBits << endl;
+   //cout << codedBits << endl;
    int num_of_padding = 8-codedBits.length();
-   cout << "padding: " << num_of_padding << " to " <<  codedBits << endl;
+   //cout << "padding: " << num_of_padding << " to " <<  codedBits << endl;
    codedBits.append(num_of_padding, '0');
    out += binToByte(codedBits);
    out += (char)num_of_padding;
@@ -291,17 +291,21 @@ void Huffman::addToTree(node_ptr node) {
 
    node_ptr now = this->huffmanTree;
 
+   cout << "[id: " << (int)id << "]" << endl;
    for(int i=0 ; i < (int)code.size() ; i++) {
       if(code[i] == '0') {
+         cout << '0';
          if(!now->left)
             now->left = new _huffman_node();
          now = now->left;
       } else {
+         cout << '1';
          if(!now->right)
             now->right = new _huffman_node();
          now = now->right;
       }
    }
+   cout << endl;
    now->id = id;
    now->code = string(code);
 }
@@ -379,9 +383,24 @@ void Huffman::decode() {
    binary += byteToBin(&text[0], text.size());
    binary = binary.substr(0, binary.size()-trailing0s);
    cout << binary << endl;
-   for(std::vector<unsigned char>::size_type i=0 ; i<text.size()-1 ; i++) {
-   }
 
+   node_ptr now = this->huffmanTree;
+   for(std::vector<unsigned char>::size_type i=0 ; i<binary.size() ; i++) {
+      if(now->left == NULL and now->right == NULL) {
+         decoded += now->id;
+         now = this->huffmanTree;
+      }
+      if(binary[i] == '0') {
+         now = now->left;
+      } else {
+         now = now->right;
+      }
+   }
+   cout << decoded << endl;
+
+   outFile.write(decoded.c_str(), decoded.size());
+   outFile.close();
+   inFile.close();
 }
 
 int main(int argc, const char* argv[]) {
