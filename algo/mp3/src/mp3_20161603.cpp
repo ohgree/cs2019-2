@@ -1,3 +1,10 @@
+/**
+ * @file mp3_20161603.cpp
+ * @brief Machine Problem 3 for Algorithms
+ * @author MJ Shin
+ * @version 1.0
+ * @date 2019-11-28
+ */
 #define ASCII_MAX_VALUE 127
 #define BYTE_SIZE 8
 #define CODEBLOCK_SIZE (ASCII_MAX_VALUE+1)/BYTE_SIZE
@@ -14,12 +21,15 @@ enum HuffmanOption {
    DECODE,
    ENCODE,
 };
+
 struct _huffman_node {
    char id;
    int freq;
    std::string code;
    _huffman_node* left;
    _huffman_node* right;
+
+   /* initialise constructor */
    _huffman_node() {
       this->left = this->right = NULL;
       this->id = INVALID_CHAR;
@@ -27,6 +37,9 @@ struct _huffman_node {
 };
 typedef _huffman_node* node_ptr;
 
+/**
+ * @brief Class for implementing Huffman Code Encryption & Decryption
+ */
 class Huffman {
    protected:
       std::string inFilename, outFilename;
@@ -35,6 +48,8 @@ class Huffman {
       HuffmanOption option;
       node_ptr huffmanTree;
       std::vector<node_ptr> huffmanCode;
+
+      /* compare class for priority queue */
       class compare {
          public:
             bool operator()(const node_ptr& v, const node_ptr& u) const {
@@ -42,8 +57,8 @@ class Huffman {
             }
       };
       priority_queue<node_ptr, std::vector<node_ptr>, compare> pq;
+
       void makeHuffmanTree(void);
-      void assignBinaryCode(node_ptr);
       void assignBinaryCode(node_ptr, std::string);
       void initialize(void);
       void openFile(void);
@@ -52,6 +67,7 @@ class Huffman {
       char binToByte(string);
       string byteToBin(unsigned char*, int);
       void addToTree(node_ptr);
+
    public:
       Huffman(std::string, HuffmanOption);
       const string getHuffmanCodeOf(char);
@@ -59,6 +75,12 @@ class Huffman {
       void decode(void);
 };
 
+/**
+ * @brief Default constructor for Huffman class
+ *
+ * @param filename File name to use as input
+ * @param opt      Decode/Encode option
+ */
 Huffman::Huffman(string filename, HuffmanOption opt) {
    this->inFilename = filename;
    this->outFilename = inFilename + ((opt == ENCODE) ? ".zz" : ".yy");
@@ -66,6 +88,11 @@ Huffman::Huffman(string filename, HuffmanOption opt) {
    initialize();
 }
 
+/**
+ * @brief converts 8-bit binary bit string to byte
+ * 
+ * @param bin String containing binary representation of bit string.
+ */
 char Huffman::binToByte(string bin) {
    char byte=0;
    for(std::string::size_type i=0 ; i<bin.length() ; i++) {
@@ -75,16 +102,21 @@ char Huffman::binToByte(string bin) {
 }
 
 /**
- *  Bit string format:
- *     1B
- *  [mapping #]
- *   1B           128bit = 16B
- *  [id][0000..padding|1|huffman code]
- *                ...
- *  [id][0000..padding|1|huffman code]
- *                N-B                  1B
- *  [encoded bit string|0 padding][# of padding]
+ * @brief Write encoded text to output file.
  *
+ *    Bit string format is as follows.
+ *
+ *      1Byte
+ *    [mapping #]
+ *
+ *    1Byte     128bit = 16Bytes
+ *    [id][0000..padding|1|huffman code]
+ *    [id][0000..padding|1|huffman code]
+ *                  ...
+ *    [id][0000..padding|1|huffman code]
+ *
+ *                 N-Bytes              1Byte
+ *    [encoded bit string|0 padding][# of padding]
  */
 void Huffman::writeToFile() {
    string out, cell;
@@ -109,10 +141,11 @@ void Huffman::writeToFile() {
        * since code length cannot exceed 127,
        * creating 128-bit block with format:
        *
+       *  127-n   1  n
        * [0000...|1|CODE]
        */
 
-      /* padding with zero */
+      /* padding with zero, padding ends with 1 */
       cell.assign(ASCII_MAX_VALUE - node->code.size(), '0');
       cell += '1';
       cell.append(node->code);
@@ -128,20 +161,30 @@ void Huffman::writeToFile() {
 
    /* reset input file */
    inFile.seekg(0, ios::beg);
+
    char k;
    string codedBits;
 
+   /* read from file, and encode simultaneously */
    while(inFile.good()) {
       inFile.get(k);
+
+      /* retrieve huffman code */
       codedBits += getHuffmanCodeOf(k);
+
+      /* break codedBits by 8-bit bitstring, which is converted to byte */
       while(codedBits.length() > 8) {
          out += binToByte(codedBits.substr(0, 8));
          codedBits = codedBits.substr(8);
       }
    }
+
+   /* add padding to match 8-bit size */
    int num_of_padding = 8-codedBits.length();
    codedBits.append(num_of_padding, '0');
    out += binToByte(codedBits);
+
+   /* length of padding is written just before eof */
    out += (char)num_of_padding;
 
    inFile.close();
@@ -149,6 +192,12 @@ void Huffman::writeToFile() {
    outFile.close();
 }
 
+/**
+ * @brief Get huffman code of given character.
+ *
+ * @param id The character to get huffman code for.
+ * @return String representing the bit string of corresponding huffman code.
+ */
 const string Huffman::getHuffmanCodeOf(char id) {
    for(std::vector<node_ptr>::size_type i = 0 ; i < huffmanCode.size() ; i++) {
       if(huffmanCode[i]->id == id)
@@ -157,29 +206,16 @@ const string Huffman::getHuffmanCodeOf(char id) {
    return NULL;
 }
 
+/**
+ * @brief Encode with initialised data, then write the result.
+ */
 void Huffman::encode(void) {
-   string encrypted;
-   int len;
-   char* buffer;
-   
-   /* read whole file */
-   /*
-   inFile.seekg(0, ios::end);
-   len = inFile.tellg();
-   inFile.seekg(0, ios::beg);
-
-   buffer = new char[len];
-   
-   inFile.read(buffer, len);
-
-   for(int i=0 ; i<len ; i++) {
-      encrypted += getHuffmanCodeOf(buffer[i]);
-   }
-   */
-   
    writeToFile();
 }
 
+/**
+ * @brief Open input file.
+ */
 void Huffman::openFile(void) {
    inFile.open(inFilename, ios::in|ios::binary);
    if(!inFile.is_open()) {
@@ -188,6 +224,9 @@ void Huffman::openFile(void) {
    }
 }
 
+/**
+ * @brief Initialise class, depending on the option.
+ */
 void Huffman::initialize(void) {
    openFile();
    if(option == ENCODE) {
@@ -198,6 +237,12 @@ void Huffman::initialize(void) {
    }
 }
 
+/**
+ * @brief Assign binary code to huffman tree, recursively
+ *
+ * @param root Root node of huffman tree
+ * @param code Current bitstring. Do assign "" when calling.
+ */
 void Huffman::assignBinaryCode(node_ptr root, string code) {
    if(!root) {
       cerr << "DFS error!" << endl;
@@ -211,6 +256,9 @@ void Huffman::assignBinaryCode(node_ptr root, string code) {
    assignBinaryCode(root->right, code + "1");
 }
 
+/**
+ * Create a huffman tree from given data.
+ */
 void Huffman::makeHuffmanTree(void) {
    int occurence[ASCII_MAX_VALUE+1] = {0};
    int len;
@@ -232,6 +280,7 @@ void Huffman::makeHuffmanTree(void) {
    for(int i=0 ; i<len ; i++) {
       occurence[(unsigned int)buffer[i]]++;
    }
+   delete[] buffer;
 
    /* create priority queue from recorded characters */
    for(int i=0 ; i<ASCII_MAX_VALUE+1 ; i++) {
@@ -244,9 +293,8 @@ void Huffman::makeHuffmanTree(void) {
       huffmanCode.push_back(v);
    }
 
-   delete[] buffer;
-
    while(pq.size() > 1) {
+
       /* popping smallest & 2nd-smallest freq from priority queue */
       node_ptr v = pq.top();
       pq.pop();
@@ -260,11 +308,20 @@ void Huffman::makeHuffmanTree(void) {
       newNode->freq = v->freq + u->freq;
       pq.push(newNode);
    }
+
    /* huffman tree is stored in PQ's top */
    this->huffmanTree = pq.top();
    pq.pop();
 }
 
+/**
+ * @brief Convert byte character to binary bitstring.
+ *
+ * @param byte Byte pointer for arrays.
+ * @param n    Number of elements in byte array.
+ *
+ * @return    String instance representing binary bitstring.
+ */
 string Huffman::byteToBin(unsigned char* byte, int n) {
    string result;
    for(int i=0 ; i<n ; i++) {
@@ -276,6 +333,11 @@ string Huffman::byteToBin(unsigned char* byte, int n) {
    return result;
 }
 
+/**
+ * @brief Add given node to huffman tree.
+ *
+ * @param node Node to add.
+ */
 void Huffman::addToTree(node_ptr node) {
    char id = node->id;
    string code = node->code;
@@ -297,6 +359,9 @@ void Huffman::addToTree(node_ptr node) {
    now->code = string(code);
 }
 
+/**
+ * @brief Reconstruct tree based on read bit string header.
+ */
 void Huffman::reconstructTree(void) {
    int nodeCount, padCount;
    unsigned char buffer[CODEBLOCK_SIZE];
@@ -332,6 +397,9 @@ void Huffman::reconstructTree(void) {
    inFile.close();
 }
 
+/**
+ * @brief Decode input file's contents, and writes decoded text to file
+ */
 void Huffman::decode() {
    outFile.open(outFilename, ios::out);
    inFile.open(inFilename, ios::in|ios::binary);
