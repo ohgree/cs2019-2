@@ -1,7 +1,7 @@
 # Compiler: g++
 CXX = g++
-# Flags: C++11 standard
-CPPFLAGS += -std=c++11
+# Flags: C++14 standard
+CPPFLAGS += -std=c++14
 # Libmath
 #LIBS += -lm
 
